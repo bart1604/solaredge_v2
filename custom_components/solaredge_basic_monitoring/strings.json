@@ -1,0 +1,18 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "SolarEdge Basic Monitoring",
+        "description": "Vul de site-ID en OAuth-clientgegevens van je SolarEdge-app in. Stel in het SolarEdge Developer-portaal de redirect-URL https://my.home-assistant.io/redirect/oauth in en geef de app toegang tot Basic Monitoring.",
+        "data": {
+          "site_id": "Site-ID",
+          "client_id": "OAuth Client ID",
+          "client_secret": "OAuth Client Secret"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Deze SolarEdge-site is al ingesteld."
+    }
+  }
+}
