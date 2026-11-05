@@ -8,7 +8,7 @@ import voluptuous as vol
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.config_entry_oauth2_flow import (
-    OAuth2FlowHandler,
+    AbstractOAuth2FlowHandler,
     async_register_implementation,
 )
 
@@ -25,7 +25,7 @@ from .oauth import SolarEdgeOAuth2Implementation
 _LOGGER = logging.getLogger(__name__)
 
 
-class SolarEdgeConfigFlow(OAuth2FlowHandler, domain=DOMAIN):
+class SolarEdgeConfigFlow(AbstractOAuth2FlowHandler, domain=DOMAIN):
     """Handle SolarEdge's OAuth authorization-code flow."""
 
     VERSION = 1
