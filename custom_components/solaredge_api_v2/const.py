@@ -6,7 +6,7 @@ from datetime import timedelta
 import logging
 from typing import Final
 
-DOMAIN: Final = "solaredge_basic_monitoring"
+DOMAIN: Final = "solaredge_api_v2"
 LOGGER = logging.getLogger(__package__)
 MANUFACTURER: Final = "SolarEdge"
 

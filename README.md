@@ -21,4 +21,4 @@ De OAuth-toegangstokens worden automatisch vernieuwd met de refresh-token wannee
 
 ## Ontwikkeling
 
-Integratiecode staat in `custom_components/solaredge_basic_monitoring/`. Er zijn geen externe Python-pakketten nodig buiten Home Assistant.
+Integratiecode staat in `custom_components/solaredge_api_v2/`. Er zijn geen externe Python-pakketten nodig buiten Home Assistant.

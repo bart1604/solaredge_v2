@@ -1,6 +1,6 @@
 {
-  "domain": "solaredge_basic_monitoring",
-  "name": "SolarEdge Basic Monitoring",
+  "domain": "solaredge_api_v2",
+  "name": "solaredge_API_v2",
   "codeowners": [
     "@bart1604"
   ],
@@ -13,7 +13,7 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/bart1604/solaredge_v2/issues",
   "loggers": [
-    "custom_components.solaredge_basic_monitoring"
+    "custom_components.solaredge_api_v2"
   ],
   "quality_scale": "platinum",
   "requirements": [],
