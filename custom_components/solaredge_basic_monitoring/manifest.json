@@ -1,11 +1,21 @@
 {
-  "domain": "solaredge_basic_monitoring",
-  "name": "SolarEdge Basic Monitoring",
-  "codeowners": ["@bart1604"],
+  "domain": "solaredge_v2",
+  "name": "SolarEdge Monitoring API v2",
+  "codeowners": [
+    "@trooperthorn"
+  ],
   "config_flow": true,
-  "documentation": "https://github.com/bart1604/solaredge_v2",
+  "dependencies": [
+    "application_credentials"
+  ],
+  "documentation": "https://github.com/trooperthorn/ha_int_solaredge",
   "integration_type": "hub",
   "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/trooperthorn/ha_int_solaredge/issues",
+  "loggers": [
+    "custom_components.solaredge_v2"
+  ],
+  "quality_scale": "platinum",
   "requirements": [],
-  "version": "0.2.0"
+  "version": "2026.10.10.1"
 }

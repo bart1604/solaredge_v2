@@ -1,43 +1,71 @@
-"""SolarEdge Basic Monitoring integration."""
+"""The SolarEdge Monitoring API v2 integration."""
 
 from __future__ import annotations
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import Platform
+from homeassistant.const import CONF_API_KEY, Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import config_entry_oauth2_flow, device_registry as dr
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .const import DOMAIN, PLATFORMS
-from .coordinator import SolarEdgeDataUpdateCoordinator
+from .api import ApiKeyAuth, AuthProvider, BearerTokenAuth, SolarEdgeClient
+from .const import AUTH_TYPE_OAUTH, CONF_AUTH_TYPE, CONF_SITE_ID, DOMAIN, MANUFACTURER
+from .coordinator import SolarEdgeCoordinator
+
+PLATFORMS = [Platform.SENSOR]
+
+type SolarEdgeConfigEntry = ConfigEntry[SolarEdgeCoordinator]
 
 
-async def async_setup(hass: HomeAssistant, config: dict) -> bool:
-    """Set up the integration from YAML (not supported)."""
-    return True
-
-
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up SolarEdge from a config entry."""
-    coordinator = SolarEdgeDataUpdateCoordinator(hass, entry)
+async def async_setup_entry(hass: HomeAssistant, entry: SolarEdgeConfigEntry) -> bool:
+    """Set up one SolarEdge site."""
+    auth = await _async_auth_provider(hass, entry)
+    client = SolarEdgeClient(async_get_clientsession(hass), auth)
+    coordinator = SolarEdgeCoordinator(hass, entry, client)
     await coordinator.async_config_entry_first_refresh()
 
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
-    await hass.config_entries.async_forward_entry_setups(
-        entry, [Platform.SENSOR]
+    metadata = coordinator.data.metadata
+    dr.async_get(hass).async_get_or_create(
+        config_entry_id=entry.entry_id,
+        identifiers={(DOMAIN, str(entry.data[CONF_SITE_ID]))},
+        manufacturer=MANUFACTURER,
+        name=metadata.name,
+        model="Monitoring site",
+        entry_type=dr.DeviceEntryType.SERVICE,
     )
-    entry.async_on_unload(entry.add_update_listener(_async_update_listener))
+
+    entry.runtime_data = coordinator
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
 
-async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Reload after options or entry changes."""
-    await hass.config_entries.async_reload(entry.entry_id)
-
-
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+async def async_unload_entry(hass: HomeAssistant, entry: SolarEdgeConfigEntry) -> bool:
     """Unload a config entry."""
-    unload_ok = await hass.config_entries.async_unload_platforms(
-        entry, [Platform.SENSOR]
+    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+
+
+async def async_remove_config_entry_device(
+    hass: HomeAssistant, entry: SolarEdgeConfigEntry, device: dr.DeviceEntry
+) -> bool:
+    """Allow removing a device only when the site inventory no longer lists it."""
+    known = {(DOMAIN, str(entry.data[CONF_SITE_ID]))} | {
+        (DOMAIN, d.serial_number) for d in entry.runtime_data.data.devices
+    }
+    return not device.identifiers & known
+
+
+async def _async_auth_provider(
+    hass: HomeAssistant, entry: SolarEdgeConfigEntry
+) -> AuthProvider:
+    if entry.data.get(CONF_AUTH_TYPE) != AUTH_TYPE_OAUTH:
+        return ApiKeyAuth(entry.data[CONF_API_KEY])
+    implementation = await config_entry_oauth2_flow.async_get_config_entry_implementation(
+        hass, entry
     )
-    if unload_ok:
-        hass.data[DOMAIN].pop(entry.entry_id)
-    return unload_ok
+    session = config_entry_oauth2_flow.OAuth2Session(hass, entry, implementation)
+
+    async def token() -> str:
+        await session.async_ensure_token_valid()
+        return str(session.token["access_token"])
+
+    return BearerTokenAuth(token)
