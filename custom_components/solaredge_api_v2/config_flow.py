@@ -4,7 +4,13 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 import logging
-from typing import Any, override
+from typing import Any
+
+try:
+    from typing import override
+except ImportError:  # Python < 3.12
+    def override(method):
+        return method
 
 from homeassistant.config_entries import (
     SOURCE_REAUTH,
@@ -29,7 +35,7 @@ from homeassistant.helpers.selector import (
     TextSelectorConfig,
     TextSelectorType,
 )
-import probatio
+import voluptuous as vol
 
 from .api import (
     ApiKeyAuth,
@@ -60,12 +66,12 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-API_KEY_SCHEMA = probatio.Schema(
-    {probatio.Required(CONF_API_KEY): TextSelector(TextSelectorConfig(type=TextSelectorType.PASSWORD))}
+API_KEY_SCHEMA = vol.Schema(
+    {vol.Required(CONF_API_KEY): TextSelector(TextSelectorConfig(type=TextSelectorType.PASSWORD))}
 )
-SITE_ID_SCHEMA = probatio.Schema(
+SITE_ID_SCHEMA = vol.Schema(
     {
-        probatio.Required(CONF_SITE_ID): NumberSelector(
+        vol.Required(CONF_SITE_ID): NumberSelector(
             NumberSelectorConfig(min=1, step=1, mode=NumberSelectorMode.BOX)
         )
     }
@@ -214,8 +220,8 @@ class SolarEdgeFlowHandler(
         ]
         return self.async_show_form(
             step_id="select_site",
-            data_schema=probatio.Schema(
-                {probatio.Required(CONF_SITE_ID): SelectSelector(SelectSelectorConfig(options=options))}
+            data_schema=vol.Schema(
+                {vol.Required(CONF_SITE_ID): SelectSelector(SelectSelectorConfig(options=options))}
             ),
         )
 
@@ -315,9 +321,9 @@ class SolarEdgeOptionsFlow(OptionsFlowWithReload):
                 }
             )
         options = self.config_entry.options
-        schema = probatio.Schema(
+        schema = vol.Schema(
             {
-                probatio.Required(
+                vol.Required(
                     CONF_SCAN_INTERVAL_MINUTES,
                     default=options.get(
                         CONF_SCAN_INTERVAL_MINUTES, DEFAULT_SCAN_INTERVAL_MINUTES
@@ -331,7 +337,7 @@ class SolarEdgeOptionsFlow(OptionsFlowWithReload):
                         mode=NumberSelectorMode.BOX,
                     )
                 ),
-                probatio.Required(
+                vol.Required(
                     CONF_DEVICE_TELEMETRY,
                     default=options.get(CONF_DEVICE_TELEMETRY, DEFAULT_DEVICE_TELEMETRY),
                 ): BooleanSelector(),

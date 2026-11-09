@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import TypeAlias
 from datetime import datetime
 from enum import StrEnum
 from typing import Any
@@ -254,7 +255,7 @@ class Alert:
         )
 
 
-type Telemetry = dict[str, dict[str, Series]]
+Telemetry: TypeAlias = dict[str, dict[str, Series]]
 """Serial number to metric name (as the API spells it) to series."""
 
 

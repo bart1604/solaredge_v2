@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import TypeAlias
+
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_API_KEY, Platform
 from homeassistant.core import HomeAssistant
@@ -14,7 +16,7 @@ from .coordinator import SolarEdgeCoordinator
 
 PLATFORMS = [Platform.SENSOR]
 
-type SolarEdgeConfigEntry = ConfigEntry[SolarEdgeCoordinator]
+SolarEdgeConfigEntry: TypeAlias = ConfigEntry[SolarEdgeCoordinator]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: SolarEdgeConfigEntry) -> bool:

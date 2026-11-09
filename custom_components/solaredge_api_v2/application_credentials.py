@@ -3,7 +3,13 @@
 from __future__ import annotations
 
 from http import HTTPStatus
-from typing import Any, cast, override
+from typing import Any, cast
+
+try:
+    from typing import override
+except ImportError:  # Python < 3.12
+    def override(method):
+        return method
 
 from aiohttp import ClientResponseError
 from homeassistant.components.application_credentials import (

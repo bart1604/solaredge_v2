@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
+from typing import TypeAlias
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -31,7 +32,7 @@ from .entity import SolarEdgeDeviceEntity, SolarEdgeSiteEntity
 
 PARALLEL_UPDATES = 0
 
-type Metrics = dict[str, Series]
+Metrics: TypeAlias = dict[str, Series]
 
 
 @dataclass(frozen=True, kw_only=True)
